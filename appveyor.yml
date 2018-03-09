@@ -1,0 +1,34 @@
+version: '{build}'
+image: Visual Studio 2015
+
+platform:
+#  - x86
+  - x64
+
+environment:
+  global:
+    DISTUTILS_USE_SDK: 1
+    MSSdk: 1
+    PYTHON: 36
+    BAZEL_SH: 'C:\msys64\usr\bin\bash.exe'
+    JAVA_HOME: 'C:\Program Files\Java\jdk1.8.0'
+
+#   matrix:
+#     - PYTHON: 27
+#     - PYTHON: 36
+
+install:
+  - cmd: '"%VS140COMNTOOLS%\..\..\VC\vcvarsall.bat" %PLATFORM%'
+  - cmd: 'wget https://github.com/bazelbuild/bazel/releases/download/0.11.1/bazel-0.11.1-dist.zip'
+  - cmd: 'unzip bazel-0.11.1-dist.zip'
+  - ps: |
+    if ($env:PLATFORM -eq "x64") { $env:PYTHON = "$env:PYTHON-x64" }
+    $env:PATH = "C:\Python$env:PYTHON\;C:\Python$env:PYTHON\Scripts\;$env:PATH"
+    pip install --disable-pip-version-check --user --upgrade pip setuptools
+
+build_script:
+  - ps: |
+    python setup.py sdist
+    pip install --verbose dist\tensorstore-0.0.1a1.tar.gz
+test_script:
+  - ps: python -s "import tensorstore"
