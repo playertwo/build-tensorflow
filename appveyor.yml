@@ -1,125 +1,52 @@
 version: '{build}'
+
 image:
   - Visual Studio 2015
-  #- ubuntu
 
 platform:
-#  - x86
 - x64
 
-#environment:
-  # environment:
-  # matrix:
-  #   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  #     MY_VAR: value1
+environment:
+  os_name: windows
+  tf_type: cpu
+  tf_tag_name: r1.6
+  tf_version: 1.6.0
 
-  #global:
-    # DISTUTILS_USE_SDK: 1
-    #
-    # TF_NEED_JEMALLOC: 0
-    # TF_NEED_GCP: 1
-    # TF_NEED_HDFS: 0
-    # TF_NEED_S3: 0
-    # TF_NEED_KAFKA: 0
-    # TF_ENABLE_XLA: 0
-    # TF_NEED_GDR: 0
-    # TF_NEED_VERBS: 0
-    # TF_NEED_OPENCL_SYCL: 0
-    # TF_NEED_CUDA: 0
-    # TF_NEED_MPI: 0
-    # BAZEL_SH: 'c:\msys64\usr\bin\bash.exe'
-    # BAZEL_PYTHON: 'C:\Python36\python.exe'
-    # PYTHON_BIN_PATH: 'C:\Python36\python.exe'
-    # PYTHON_LIB_PATH: 'C:\Python36\lib\site-packages'
-    #BAZEL_WRKDIR: 'C:/t'
-    #TMPDIR: 'C:\tmp'
-    # MSSdk: 1
-    # PYTHON: 36
-    # USE_DEFAULT_PYTHON_LIB_PATH: 1
-    # JAVA_HOME: 'C:\Program Files\Java\jdk1.8.0'
-    # TF_BAZEL_TARGETS: "//tensorflow:libtensorflow.so"
-
-
-#   matrix:
-#     - PYTHON: 27
-#     - PYTHON: 36
+  matrix:
+    - vcvar_arg: x86
+      platform_name: x86
+      cmake_ext_arg: ""
+    - vcvar_arg: amd64
+      platform_name: x86_64
+      cmake_ext_arg: " -A x64"
 
 install:
-  #- cmd: cp -r C:\Python27 "C:/Program Files/Anaconda3"
-  #- cmd: choco install bazel
-
-  # - cmd: set PATH="/c/Python36;%PATH%"
-  # - cmd: set PATH="/c/Python36/Scripts;%PATH%"
-  # #- cmd: mkdir -p "%TMPDIR%"
-  # - sh: apt install openjdk-8-jdk
-  # - sh: echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/source
-  # - sh: s.list.d/bazel.list
-  # - sh: curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
-  # - sh: apt update && apt install bazel
-
-  - if not exist tensorflow (
-      git clone https://github.com/tensorflow/tensorflow)
-  - cmd: cd tensorflow && git checkout r1.6
-  - sh: cd tensorflow && git checkout r1.6
+  - cmd: git clone https://github.com/tensorflow/tensorflow
+  - cmd: cd tensorflow && git checkout %tf_tag_name%
+  - if [%platform_name%]==[x86] git apply ../patches/32bit.patch
+  - cmd: git apply ../patches/add-ops.patch
   - cmd: mkdir c:\tf && cd c:\tf
-
-
-
-  #- cmd: c:\tools\python2\python.exe configure.py
-  #- cmd: bazel clean --expunge
-  # - sh: bazel clean --expunge
-  # #- cmd: echo "" | bash configure
-  # - sh: yes "" | ./configure
-
-  # - ps: |
-  #     if ($env:PLATFORM -eq "x64") { $env:PYTHON = "$env:PYTHON-x64" }
-  #     $env:PATH = "C:\Python$env:PYTHON\;C:\Python$env:PYTHON\Scripts\;C:\msys64\usr\bin;$env:SystemRoot;$env:SystemRoot\system32;"
-  #     pip install --disable-pip-version-check --user --upgrade pip setuptools
-  #
-  #
-  - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
-
-# - if not exist bazel (
-#   echo bazel not exist &&
-#   call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64 &&
-#   pacman -Syuu --noconfirm --ask 20 zip unzip &&
-#   wget -nc --quiet https://github.com/bazelbuild/bazel/releases/download/0.8.1/bazel-0.8.1-dist.zip &&
-#   unzip -qq bazel-0.8.1-dist.zip -d bazel &&
-#   sed -i 's/-classpath/-J-Xms512m -J-Xmx1024m -classpath/g' bazel\scripts\bootstrap\compile.sh &&
-#   bash bazel/compile.sh)
-
-# $env:PATH =
-#     //tensorflow:libtensorflow_cc.so
-
-cache:
-   #- bazel-0.8.1-dist.zip  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
-   #- bazel\output\bazel.exe
-   # - C:\ProgramData\chocolatey\bin
-   # - C:\ProgramData\chocolatey\lib
-   - tensorflow
+  - cmd: vcpkg integrate remove
 
 build_script:
-
-  #- '"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86'
-  #- bash tensorflow/tools/ci_build/windows/libtensorflow_cpu.sh
-  #- cmd: bazel build -s //tensorflow/core:version_info_gen
-  #- cmd: python tensorflow/tools/git/gen_git_source.py --generate external/local_config_git/gen/spec.json external/local_config_git/gen/head external/local_config_git/gen/branch_ref "bazel-out/x64_windows-opt/genfiles/tensorflow/core/util/version_info.cc"
-  #- cmd: bazel build //tensorflow:libtensorflow.so
-  - cmd: cmake C:\projects\build-tensorflow\tensorflow\tensorflow\contrib\cmake -DCMAKE_BUILD_TYPE=Release -Dtensorflow_BUILD_ALL_KERNELS=OFF -Dtensorflow_BUILD_CC_EXAMPLE=OFF -Dtensorflow_BUILD_PYTHON_BINDINGS=OFF -Dtensorflow_BUILD_SHARED_LIB=ON -Dtensorflow_ENABLE_GRPC_SUPPORT=OFF
+  - cmd: cmake C:\projects\build-tensorflow\tensorflow\tensorflow\contrib\cmake -DCMAKE_BUILD_TYPE=Release %cmake_ext_arg% -Dtensorflow_BUILD_CC_EXAMPLE=OFF -Dtensorflow_BUILD_PYTHON_BINDINGS=OFF -Dtensorflow_BUILD_SHARED_LIB=ON -Dtensorflow_BUILD_CONTRIB_KERNELS=OFF -Dtensorflow_OPTIMIZE_FOR_NATIVE_ARCH=OFF -Dtensorflow_ENABLE_GRPC_SUPPORT=OFF -Dtensorflow_BUILD_ALL_KERNELS=OFF
   - cmd: MSBuild /m /p:Configuration=Release tensorflow.vcxproj
-  #- sh: bazel build  --verbose_failures //tensorflow:libtensorflow.so
-#- cmd: bazel --output_base C:\t build --action_env=USE_MSVC_WRAPPER=1 --config=monolithic //tensorflow:libtensorflow.so
+
+after_build:
+  - cmd: 7z a C:\projects\build-tensorflow\libtensorflow-%tf_type%-%os_name%-%platform_name%-%tf_version%.zip C:\tf\Release\tensorflow.dll C:\tf\Release\tensorflow.lib
+
 artifacts:
-  - path: C:\tf\Release\tensorflow.dll
-    name: tensorflow
-  #echo Done!
+  - path: libtensorflow-%tf_type%-%os_name%-%platform_name%-%tf_version%.zip
+    name: libtensorflow-%tf_type%-%os_name%-%platform_name%-%tf_version%.zip
 
-
-
-
-
-  # - ps: |
-  #     python setup.py sdist
-  #     pip install --verbose dist\tensorstore-0.0.1a1.tar.gz
-# test_script:
-#   - ps: python -s "import tensorstore"
+deploy:
+  release: TensorFlow-$(tf_version)
+  description: 'Prebuilded 32 bit (x86) and 64 bit (x86-64) cpu version of TensorFlow C and C++ API for Windows and Linux'
+  provider: GitHub
+  auth_token:
+    secure: 0BKAHbP+Qv2LWfj/sM7t00NAutlp3CJJpQp41RphbkIBRg/QRK7YXIchLHivLxWS
+  artifact: /.*\.zip/
+  draft: false
+  prerelease: false
+  on:
+    branch: master

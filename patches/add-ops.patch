@@ -1,0 +1,206 @@
+diff --git a/tensorflow/contrib/cmake/tf_core_cpu.cmake b/tensorflow/contrib/cmake/tf_core_cpu.cmake
+index e4213ea2a4..b0d2ce4a55 100644
+--- a/tensorflow/contrib/cmake/tf_core_cpu.cmake
++++ b/tensorflow/contrib/cmake/tf_core_cpu.cmake
+@@ -20,8 +20,8 @@ file(GLOB_RECURSE tf_core_cpu_srcs
+     "${tensorflow_source_dir}/tensorflow/cc/saved_model/*.cc"
+     "${tensorflow_source_dir}/tensorflow/core/common_runtime/*.h"
+     "${tensorflow_source_dir}/tensorflow/core/common_runtime/*.cc"
+-    "${tensorflow_source_dir}/tensorflow/core/debug/*.h"
+-    "${tensorflow_source_dir}/tensorflow/core/debug/*.cc"
++    #"${tensorflow_source_dir}/tensorflow/core/debug/*.h"
++    #"${tensorflow_source_dir}/tensorflow/core/debug/*.cc"
+     "${tensorflow_source_dir}/tensorflow/core/distributed_runtime/server_lib.h"
+     "${tensorflow_source_dir}/tensorflow/core/distributed_runtime/server_lib.cc"
+     "${tensorflow_source_dir}/tensorflow/core/graph/*.h"
+diff --git a/tensorflow/contrib/cmake/tf_core_framework.cmake b/tensorflow/contrib/cmake/tf_core_framework.cmake
+index 129c208ecd..cb7aa1cbba 100644
+--- a/tensorflow/contrib/cmake/tf_core_framework.cmake
++++ b/tensorflow/contrib/cmake/tf_core_framework.cmake
+@@ -174,7 +174,7 @@ RELATIVE_PROTOBUF_TEXT_GENERATE_CPP(PROTO_TEXT_SRCS PROTO_TEXT_HDRS
+     ${tensorflow_source_dir} ${tf_proto_text_srcs}
+ )
+ 
+-if(WIN32)
++if(NOT tensorflow_ENABLE_GRPC_SUPPORT)
+   add_library(tf_protos_cc ${PROTO_SRCS} ${PROTO_HDRS})
+ else()
+   file(GLOB_RECURSE tf_protos_grpc_cc_srcs RELATIVE ${tensorflow_source_dir}
+diff --git a/tensorflow/contrib/cmake/tf_core_kernels.cmake b/tensorflow/contrib/cmake/tf_core_kernels.cmake
+index 6927bf03f0..6aabbda65c 100644
+--- a/tensorflow/contrib/cmake/tf_core_kernels.cmake
++++ b/tensorflow/contrib/cmake/tf_core_kernels.cmake
+@@ -22,7 +22,7 @@ if(tensorflow_BUILD_ALL_KERNELS)
+      "${tensorflow_source_dir}/tensorflow/core/kernels/*.cc"
+   )
+ else(tensorflow_BUILD_ALL_KERNELS)
+-  # Build a minimal subset of kernels to be able to run a test program.
++  # Build a minimal tet of kernels to be able to run a test program.
+   set(tf_core_kernels_srcs
+      "${tensorflow_source_dir}/tensorflow/core/kernels/bounds_check.h"
+      "${tensorflow_source_dir}/tensorflow/core/kernels/constant_op.h"
+@@ -37,6 +37,164 @@ else(tensorflow_BUILD_ALL_KERNELS)
+      "${tensorflow_source_dir}/tensorflow/core/kernels/ops_util.cc"
+      "${tensorflow_source_dir}/tensorflow/core/kernels/sendrecv_ops.h"
+      "${tensorflow_source_dir}/tensorflow/core/kernels/sendrecv_ops.cc"
++
++     "${tensorflow_source_dir}/tensorflow/core/kernels/avgpooling_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/avgpooling_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/batch_norm_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/batch_norm_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/bias_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/bias_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/concat_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/concat_lib_cpu.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/concat_lib_cpu.h"
++
++     "${tensorflow_source_dir}/tensorflow/core/kernels/conv_2d.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/conv_ops.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/conv_ops.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/data_format_ops.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/data_format_ops.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/decode_image_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/encode_jpeg_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/encode_png_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/identity_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/identity_op.cc"
++
++
++     "${tensorflow_source_dir}/tensorflow/core/kernels/matmul_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/matmul_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/maxpooling_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/maxpooling_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/pad_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/pad_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/pooling_ops_common.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/pooling_ops_common.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/relu_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/relu_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/reshape_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/reshape_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/resize_bilinear_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/resize_bilinear_op.cc"
++
++     "${tensorflow_source_dir}/tensorflow/core/kernels/shape_ops.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/shape_ops.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/resize_nearest_neighbor_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/resize_nearest_neighbor_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/softmax_op_functor.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/softmax_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/tensor_array.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/tensor_array.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/tensor_array_ops.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/transpose_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/transpose_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/variable_ops.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/variable_ops.cc"
++
++     "${tensorflow_source_dir}/tensorflow/core/kernels/transpose_functor.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/transpose_functor_cpu.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/split_v_op.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/split_lib.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/split_lib_cpu.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/deep_conv2d.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/deep_conv2d.cc"
++
++     "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_ops.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_ops_common.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_ops_common.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_sub.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_mul_1.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_mul_2.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_div.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_add_1.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_add_2.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_rsqrt.cc"
++
++     "${tensorflow_source_dir}/tensorflow/core/kernels/pack_op.cc"
++
++     "${tensorflow_source_dir}/tensorflow/core/kernels/substr_op.cc"
++
++     "${tensorflow_source_dir}/tensorflow/core/kernels/slice_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/slice_op.cc"
++
++     "${tensorflow_source_dir}/tensorflow/core/kernels/strided_slice_op.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/strided_slice_op.cc"
++
++     "${tensorflow_source_dir}/tensorflow/core/kernels/strided_slice_op_impl.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/strided_slice_op_inst_0.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/strided_slice_op_inst_1.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/strided_slice_op_inst_2.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/strided_slice_op_inst_3.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/strided_slice_op_inst_4.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/strided_slice_op_inst_5.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/strided_slice_op_inst_6.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/strided_slice_op_inst_7.cc"
++
++     "${tensorflow_source_dir}/tensorflow/core/kernels/slice_op_cpu_impl.h"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/slice_op_cpu_impl_1.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/slice_op_cpu_impl_2.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/slice_op_cpu_impl_3.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/slice_op_cpu_impl_4.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/slice_op_cpu_impl_5.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/slice_op_cpu_impl_6.cc"
++     "${tensorflow_source_dir}/tensorflow/core/kernels/slice_op_cpu_impl_7.cc"
++
++    "${tensorflow_source_dir}/tensorflow/core/kernels/control_flow_ops.h"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/control_flow_ops.cc"
++
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_equal_to_1.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_equal_to_2.cc"
++
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_greater_equal.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_greater.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_isnan.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_isinf.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_less.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_less_equal.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_neg.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_not_equal_to_1.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_not_equal_to_2.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_sqrt.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_exp.cc"
++
++    "${tensorflow_source_dir}/tensorflow/core/kernels/logging_ops.cc"
++
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op.h"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl.h"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl_bfloat.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl_bool.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl_complex64.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl_complex128.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl_double.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl_float.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl_half.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl_int8.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl_int16.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl_int32.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl_int64.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl_uint8.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cast_op_impl_uint16.cc"
++
++    "${tensorflow_source_dir}/tensorflow/core/kernels/conv_grad_ops.h"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/conv_grad_ops.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/conv_grad_input_ops.cc"
++
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_log.cc"
++
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_maximum.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/cwise_op_minimum.cc"
++
++    "${tensorflow_source_dir}/tensorflow/core/kernels/reduction_ops.h"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/reduction_ops_common.h"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/reduction_ops_common.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/reduction_ops_max.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/reduction_ops_min.cc"
++
++    "${tensorflow_source_dir}/tensorflow/core/kernels/argmax_op.cc"
++    "${tensorflow_source_dir}/tensorflow/core/kernels/argmax_op.h"
++
++    "${tensorflow_source_dir}/tensorflow/core/kernels/function_ops.cc"
++
++
+   )
+ endif(tensorflow_BUILD_ALL_KERNELS)
+ 
