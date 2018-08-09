@@ -4,6 +4,7 @@ sudo: required
 services:
   - docker
 script:
+  - "cat /proc/cpuinfo"
   - "docker run -i -v \"${PWD}:/build-tensorflow\" daald/ubuntu32:xenial /bin/bash -c \"linux32 --32bit i386 /build-tensorflow/travis-ci/build-linux-x86.sh\""
 deploy:
   - provider: releases
